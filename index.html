@@ -269,6 +269,76 @@
       to { opacity: 1; }
     }
 
+    /* ===== CONTROLE SORTEIO MÚLTIPLO ===== */
+    .multiplo-container {
+      margin: 20px 0;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .multiplo-container label {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #ffd700;
+    }
+
+    .multiplo-container input {
+      width: 60px;
+      padding: 8px;
+      font-size: 1em;
+      border: 2px solid #ff3d00;
+      border-radius: 8px;
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .multiplo-container input:focus {
+      outline: none;
+      border-color: #ffd700;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
+    /* Resultado para múltiplos personagens */
+    .resultado-multiplo {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .card-personagem {
+      background-color: rgba(255, 61, 0, 0.2);
+      border: 2px solid #ff3d00;
+      border-radius: 12px;
+      padding: 15px;
+      transition: all 0.3s ease;
+      animation: popIn 0.5s ease-out;
+    }
+
+    .card-personagem:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(255, 61, 0, 0.4);
+    }
+
+    .card-personagem h3 {
+      color: #ffd700;
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+
+    .card-personagem img {
+      width: 100%;
+      height: auto;
+      border: 3px solid #fff;
+      border-radius: 8px;
+      max-height: 150px;
+      object-fit: cover;
+    }
+
     /* ===== RESPONSIVIDADE ===== */
     @media (max-width: 768px) {
       h1 {
@@ -288,12 +358,38 @@
       #resultado img {
         width: 180px;
       }
+
+      .multiplo-container {
+        gap: 10px;
+        margin: 15px 0;
+      }
+
+      .multiplo-container label {
+        font-size: 1em;
+      }
+
+      .resultado-multiplo {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+      }
+
+      .card-personagem {
+        padding: 12px;
+      }
+
+      .card-personagem h3 {
+        font-size: 0.95em;
+      }
     }
 
     @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+
       h1 {
-        font-size: 1.8em;
-        margin-bottom: 20px;
+        font-size: 1.6em;
+        margin-bottom: 15px;
       }
 
       button {
@@ -303,11 +399,11 @@
       }
 
       #resultado {
-        min-height: 300px;
+        min-height: 250px;
       }
 
       #resultado h2 {
-        font-size: 1.5em;
+        font-size: 1.4em;
         margin-bottom: 15px;
       }
 
@@ -316,6 +412,51 @@
         border: 3px solid #fff;
       }
 
+      .multiplo-container {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .multiplo-container label {
+        font-size: 0.95em;
+      }
+
+      .multiplo-container input {
+        width: 100%;
+        max-width: 100px;
+      }
+
+      .resultado-multiplo {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+      }
+
+      .card-personagem {
+        padding: 10px;
+      }
+
+      .card-personagem h3 {
+        font-size: 0.9em;
+        margin-bottom: 5px;
+      }
+
+      .card-personagem img {
+        border: 2px solid #fff;
+      }
+
+      .dica-atalho {
+        font-size: 0.8em;
+      }
+
+      .historico-container {
+        padding: 15px;
+      }
+
+      .btn-acao {
+        font-size: 14px;
+        padding: 8px 15px;
+      }
     }
   </style>
 </head>
@@ -324,6 +465,13 @@
   <div class="container">
     <h1> Quem é seu personagem? </h1>
     <button id="sortear" aria-label="Sortear um personagem da Marvel">Sortear Personagem</button>
+    
+    <!-- CONTROLE SORTEIO MÚLTIPLO -->
+    <div class="multiplo-container">
+      <label for="quantidade">Quantidade:</label>
+      <input type="number" id="quantidade" min="1" max="5" value="1">
+    </div>
+
     <p class="dica-atalho">💡 Dica: Pressione ENTER para sortear rapidamente</p>
     <div id="resultado"></div>
     <div id="historico" class="historico-container" style="display: none;">
@@ -395,6 +543,7 @@
     const historicoList = document.getElementById("historico-list");
     const acoes = document.getElementById("acoes");
     const btnLimparHistorico = document.getElementById("limpar-historico");
+    const inputQuantidade = document.getElementById("quantidade");
     
     let ultimoIndex = -1;
     let esta_sorteando = false;
@@ -475,7 +624,7 @@
 
     // ===== FUNÇÃO PRINCIPAL =====
     /**
-     * Sorteia um personnagem aleatório, evitando repetição consecutiva
+     * Sorteia um ou mais personagens aleatórios
      * Inclui animação de carregamento e tratamento de erros para imagens
      */
     function sortearPersonagem() {
@@ -484,61 +633,97 @@
 
       esta_sorteando = true;
       botao.disabled = true;
+      const quantidade = Math.min(Math.max(parseInt(inputQuantidade.value) || 1, 1), 5);
       resultado.innerHTML = '<div class="carregando">🎲 Sorteando...</div>';
 
       // Simula delay para ter melhor feedback visual
       setTimeout(() => {
-        let indexAleatorio;
-        let tentativas = 0;
-        const maxTentativas = 30;
+        const personagensEscolhidos = [];
+        const usados = new Set();
 
-        // Seleciona um índice aleatório evitando os 10 últimos
-        do {
-          indexAleatorio = Math.floor(Math.random() * personagens.length);
-          tentativas++;
-        } while (historico.includes(personagens[indexAleatorio].nome) && historico.length >= historicoMaximo && tentativas < maxTentativas);
-
-        const p = personagens[indexAleatorio];
-        ultimoPersonagemSorteado = p;
-
-        // Criar elemento de imagem e aguardar carregamento
-        const img = new Image();
-        img.onload = () => {
-          // Atualizar histórico
-          if (!historico.includes(p.nome)) {
-            historico.unshift(p.nome);
-            if (historico.length > historicoMaximo) {
-              historico.pop();
-            }
+        // Sorteia quantidade de personagens diferentes
+        while (personagensEscolhidos.length < quantidade && personagensEscolhidos.length < personagens.length) {
+          const indexAleatorio = Math.floor(Math.random() * personagens.length);
+          const nome = personagens[indexAleatorio].nome;
+          
+          if (!usados.has(nome)) {
+            personagensEscolhidos.push(personagens[indexAleatorio]);
+            usados.add(nome);
           }
-          contadores[p.nome] = (contadores[p.nome] || 0) + 1;
-          salvarDados();
-          atualizarHistoricoVisual();
+        }
 
-          // Exibir resultado com efeito
-          exibirResultado(p);
-          
-          // Anima confete
-          lancarConfete();
-          
-          
-          esta_sorteando = false;
-          botao.disabled = false;
-        };
+        // Carrega todas as imagens
+        let imagesCarregadas = 0;
+        let houvErro = false;
 
-        img.onerror = () => {
-          // Erro ao carregar imagem
-          resultado.innerHTML = `
-            <h2>${p.nome}</h2>
-            <div class="erro">⚠️ Não foi possível carregar a imagem</div>
-          `;
-          esta_sorteando = false;
-          botao.disabled = false;
-        };
+        personagensEscolhidos.forEach((p, index) => {
+          const img = new Image();
+          img.onload = () => {
+            imagesCarregadas++;
+            
+            if (imagesCarregadas === personagensEscolhidos.length) {
+              // Todas as imagens carregadas
+              personagensEscolhidos.forEach(personagem => {
+                // Atualizar histórico
+                if (!historico.includes(personagem.nome)) {
+                  historico.unshift(personagem.nome);
+                  if (historico.length > historicoMaximo) {
+                    historico.pop();
+                  }
+                }
+                contadores[personagem.nome] = (contadores[personagem.nome] || 0) + 1;
+              });
+              
+              salvarDados();
+              atualizarHistoricoVisual();
 
-        // Inicia carregamento da imagem
-        img.src = p.img;
+              // Exibir resultado com efeito
+              if (quantidade === 1) {
+                exibirResultado(personagensEscolhidos[0]);
+              } else {
+                exibirResultadoMultiplo(personagensEscolhidos);
+              }
+              
+              // Anima confete
+              lancarConfete();
+              
+              esta_sorteando = false;
+              botao.disabled = false;
+            }
+          };
+
+          img.onerror = () => {
+            imagesCarregadas++;
+            houvErro = true;
+            
+            if (imagesCarregadas === personagensEscolhidos.length) {
+              if (houvErro) {
+                resultado.innerHTML = `<div class="erro">⚠️ Erro ao carregar algumas imagens</div>`;
+              }
+              esta_sorteando = false;
+              botao.disabled = false;
+            }
+          };
+
+          // Inicia carregamento da imagem
+          img.src = p.img;
+        });
       }, 800);
+    }
+
+    // ===== EXIBIR RESULTADO MÚLTIPLO =====
+    function exibirResultadoMultiplo(personagens) {
+      let html = '<div class="resultado-multiplo">';
+      personagens.forEach(p => {
+        html += `
+          <div class="card-personagem">
+            <h3>${p.nome}</h3>
+            <img src="${p.img}" alt="${p.nome}">
+          </div>
+        `;
+      });
+      html += '</div>';
+      resultado.innerHTML = html;
     }
 
     // ===== FUNÇÃO DE CONFETE =====
