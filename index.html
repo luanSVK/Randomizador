@@ -656,62 +656,32 @@
           }
         }
 
-        // Carrega todas as imagens
-        let imagesCarregadas = 0;
-        let houvErro = false;
-
-        personagensEscolhidos.forEach((p, index) => {
-          const img = new Image();
-          img.onload = () => {
-            imagesCarregadas++;
-            
-            if (imagesCarregadas === personagensEscolhidos.length) {
-              // Todas as imagens carregadas
-              personagensEscolhidos.forEach(personagem => {
-                // Atualizar histórico
-                if (!historico.includes(personagem.nome)) {
-                  historico.unshift(personagem.nome);
-                  if (historico.length > historicoMaximo) {
-                    historico.pop();
-                  }
-                }
-                contadores[personagem.nome] = (contadores[personagem.nome] || 0) + 1;
-              });
-              
-              salvarDados();
-              atualizarHistoricoVisual();
-
-              // Exibir resultado com efeito
-              if (quantidade === 1) {
-                exibirResultado(personagensEscolhidos[0]);
-              } else {
-                exibirResultadoMultiplo(personagensEscolhidos);
-              }
-              
-              // Anima confete
-              lancarConfete();
-              
-              esta_sorteando = false;
-              botao.disabled = false;
+        // Atualizar histórico
+        personagensEscolhidos.forEach(personagem => {
+          if (!historico.includes(personagem.nome)) {
+            historico.unshift(personagem.nome);
+            if (historico.length > historicoMaximo) {
+              historico.pop();
             }
-          };
-
-          img.onerror = () => {
-            imagesCarregadas++;
-            houvErro = true;
-            
-            if (imagesCarregadas === personagensEscolhidos.length) {
-              if (houvErro) {
-                resultado.innerHTML = `<div class="erro">⚠️ Erro ao carregar algumas imagens</div>`;
-              }
-              esta_sorteando = false;
-              botao.disabled = false;
-            }
-          };
-
-          // Inicia carregamento da imagem
-          img.src = p.img;
+          }
+          contadores[personagem.nome] = (contadores[personagem.nome] || 0) + 1;
         });
+        
+        salvarDados();
+        atualizarHistoricoVisual();
+
+        // Exibir resultado com efeito
+        if (quantidade === 1) {
+          exibirResultado(personagensEscolhidos[0]);
+        } else {
+          exibirResultadoMultiplo(personagensEscolhidos);
+        }
+        
+        // Anima confete
+        lancarConfete();
+        
+        esta_sorteando = false;
+        botao.disabled = false;
       }, 800);
     }
 
