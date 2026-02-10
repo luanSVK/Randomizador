@@ -304,8 +304,9 @@
 
     /* Resultado para múltiplos personagens */
     .resultado-multiplo {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 15px;
       margin-top: 20px;
     }
@@ -317,6 +318,8 @@
       padding: 15px;
       transition: all 0.3s ease;
       animation: popIn 0.5s ease-out;
+      width: 160px;
+      text-align: center;
     }
 
     .card-personagem:hover {
@@ -369,12 +372,13 @@
       }
 
       .resultado-multiplo {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 12px;
+        flex-direction: row;
+        gap: 10px;
       }
 
       .card-personagem {
         padding: 12px;
+        width: 140px;
       }
 
       .card-personagem h3 {
@@ -428,12 +432,12 @@
       }
 
       .resultado-multiplo {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 10px;
+        flex-direction: row;
+        gap: 8px;
       }
 
       .card-personagem {
-        padding: 10px;
+        width: 110px;
       }
 
       .card-personagem h3 {
