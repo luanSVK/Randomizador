@@ -3,496 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Sorteador de personagens Marvel Rivals">
-  <title>Sortear Personagem Marvel Rivals</title>
+  <title>Sorteador Marvel Rivals - Aleatório Total</title>
   
-  <link rel="icon" href="https://videos.openai.com/az/vg-assets/task_01kgr7nd24ffktw5a10t1gtt6d%2F1770339899_img_0.webp?se=2026-02-12T00%3A00%3A00Z&sp=r&sv=2026-02-06&sr=b&skoid=cfbc986b-d2bc-4088-8b71-4f962129715b&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-02-06T00%3A46%3A20Z&ske=2026-02-13T00%3A51%3A20Z&sks=b&skv=2026-02-06&sig=vOtT12Chkz%2BwZ5ajGcMjV651/OFnwE2g5F7uhgRA3Ec%3D&ac=oaivgprodscus2" type="image/png">
-
-  <!-- Biblioteca de Confete -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.0/dist/confetti.browser.min.js"></script>
 
   <style>
-    /* ===== RESET E GERAL ===== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    /* ===== ESTILOS GERAIS ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       text-align: center;
       min-height: 100vh;
       background: url('https://i.pinimg.com/736x/5f/33/fc/5f33fc9544e4ea854ded0353dd59aad8.jpg') center/cover no-repeat fixed;
-      position: relative;
       color: #fff;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
       padding: 20px;
     }
 
-    /* Overlay escuro para melhor legibilidade */
     body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.6);
-      z-index: -1;
+      content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.75); z-index: -1;
     }
 
-    /* Container principal */
-    .container {
-      z-index: 1;
-      max-width: 600px;
-      width: 100%;
-    }
+    .container { max-width: 1000px; width: 100%; margin-top: 20px; }
 
-    /* ===== TÍTULO ===== */
     h1 {
-      font-size: 3em;
-      margin-bottom: 40px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-      letter-spacing: 1px;
-      animation: slideDown 0.6s ease-out;
+      font-size: 2.5em; margin-bottom: 20px; color: #ffd700;
+      text-shadow: 2px 2px 4px #000; text-transform: uppercase;
+    }
+
+    /* ===== ÁREA DE INPUT ===== */
+    .input-box {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 25px;
+      border-radius: 15px;
+      border: 1px solid #ff3d00;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    label { display: block; margin-bottom: 10px; font-size: 1.1em; color: #fff; font-weight: bold; }
+
+    textarea {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 2px solid #555;
+      background: #fff;
+      color: #333;
+      text-align: center;
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    textarea:focus { outline: none; border-color: #ff3d00; }
+
+    .dica-enter {
+      margin-top: 10px;
+      font-size: 0.9em;
+      color: #ccc;
+      opacity: 0.8;
     }
 
     /* ===== BOTÃO ===== */
-    button {
-      font-size: 20px;
-      padding: 15px 50px;
-      cursor: pointer;
-      margin: 20px 0;
-      background-color: #ff3d00;
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-weight: bold;
-      transition: all 0.3s ease;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    button#btn-sortear {
+      margin-top: 15px;
+      font-size: 18px; padding: 12px 40px; cursor: pointer;
+      background: #ff3d00; border: none; border-radius: 8px;
+      color: white; font-weight: bold; text-transform: uppercase;
+      transition: transform 0.2s, background 0.2s;
+      box-shadow: 0 4px 10px rgba(255, 61, 0, 0.4);
     }
 
-    button:hover:not(:disabled) {
-      background-color: #ff6e40;
-      transform: scale(1.08);
-      box-shadow: 0 8px 25px rgba(255, 61, 0, 0.4);
-    }
+    button#btn-sortear:hover:not(:disabled) { background: #ff6e40; transform: scale(1.05); }
+    button:disabled { background: #555; cursor: not-allowed; opacity: 0.7; }
 
-    button:active:not(:disabled) {
-      transform: scale(0.98);
-    }
-
-    /* Estado desabilitado durante sorteio */
-    button:disabled {
-      background-color: #999;
-      cursor: not-allowed;
-      opacity: 0.7;
-    }
-
-    /* ===== RESULTADO ===== */
+    /* ===== RESULTADO (GRID) ===== */
     #resultado {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
       margin-top: 30px;
-      min-height: 380px;
+      min-height: 200px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 100%);
+      border: 2px solid #ff3d00;
+      border-radius: 12px;
+      width: 180px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
+      animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; /* Forwards mantém o estado final */
+      box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+      position: relative;
+      opacity: 0; /* Começa invisível para a animação */
     }
 
-    #resultado h2 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
-      color: #ffd700;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-      animation: popIn 0.5s ease-out;
+    .card h3 {
+      font-size: 16px; color: #000; background: #fff;
+      width: 100%; padding: 6px; border-radius: 20px;
+      margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-weight: 800; text-transform: uppercase;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }
 
-    #resultado img {
-      width: 230px;
-      max-width: 90%;
-      height: auto;
-      border: 4px solid #fff;
-      border-radius: 15px;
-      opacity: 0;
-      transition: opacity 0.6s ease, transform 0.6s ease;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    .card img {
+      width: 100%; height: 140px; object-fit: cover;
+      border-radius: 8px; border: 2px solid #555;
+      background-color: #000;
+      opacity: 1 !important;
     }
 
-    #resultado img.mostrar {
-      opacity: 1;
-      transform: scale(1);
+    .card p {
+      margin-top: 10px; font-weight: bold; color: #ffd700; font-size: 15px;
+      text-shadow: 1px 1px 2px #000;
     }
 
-    /* Mensagem de carregamento */
-    .carregando {
-      font-size: 1.5em;
-      animation: pulse 1.5s infinite;
+    @keyframes zoomIn { 
+      from { transform: scale(0) translateY(50px); opacity: 0; } 
+      to { transform: scale(1) translateY(0); opacity: 1; } 
     }
 
-    /* Mensagem de erro */
-    .erro {
-      color: #ff6b6b;
-      font-size: 1.2em;
-      padding: 15px;
-      background-color: rgba(255, 107, 107, 0.2);
-      border-radius: 8px;
-      border-left: 4px solid #ff6b6b;
-    }
-
-    /* ===== ANIMAÇÕES ===== */
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes popIn {
-      0% {
-        opacity: 0;
-        transform: scale(0.8);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0.6;
-      }
-    }
-
-
-
-    /* ===== HISTÓRICO ===== */
-    .historico-container {
-      margin-top: 30px;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 100%;
-    }
-
-    .historico-title {
-      font-size: 1.2em;
-      margin-bottom: 15px;
-      color: #ffd700;
-    }
-
-    .historico-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 10px;
-      max-height: 150px;
-      overflow-y: auto;
-    }
-
-    .historico-item {
-      background-color: rgba(255, 61, 0, 0.3);
-      border: 2px solid #ff3d00;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 0.9em;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .historico-item:hover {
-      background-color: rgba(255, 61, 0, 0.6);
-      transform: scale(1.05);
-    }
-
-    .historico-item small {
-      display: block;
-      font-size: 0.8em;
-      color: #ccc;
-      margin-top: 3px;
-    }
-
-    /* ===== BOTÕES DE AÇÃO ===== */
-    .acoes-container {
-      margin-top: 20px;
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .btn-acao {
-      font-size: 16px;
-      padding: 10px 20px;
-      cursor: pointer;
-      background-color: #4CAF50;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      transition: all 0.3s ease;
-      font-weight: bold;
-    }
-
-    .btn-acao:hover:not(:disabled) {
-      background-color: #45a049;
-      transform: scale(1.05);
-    }
-
-    .btn-acao:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-
-
-    /* ===== DICA DE ATALHO ===== */
-    .dica-atalho {
-      font-size: 0.9em;
-      color: #ccc;
-      margin-top: 15px;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    /* ===== CONTROLE SORTEIO MÚLTIPLO ===== */
-    .multiplo-container {
-      margin: 20px 0;
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .multiplo-container label {
-      font-size: 1.1em;
-      font-weight: bold;
-      color: #ffd700;
-    }
-
-    .multiplo-container input {
-      width: 60px;
-      padding: 8px;
-      font-size: 1em;
-      border: 2px solid #ff3d00;
-      border-radius: 8px;
-      text-align: center;
-      background-color: rgba(255, 255, 255, 0.1);
-      color: white;
-    }
-
-    .multiplo-container input:focus {
-      outline: none;
-      border-color: #ffd700;
-      box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-    }
-
-    /* Resultado para múltiplos personagens */
-    .resultado-multiplo {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 20px;
-    }
-
-    .card-personagem {
-      background-color: rgba(255, 61, 0, 0.2);
-      border: 2px solid #ff3d00;
-      border-radius: 12px;
-      padding: 15px;
-      transition: all 0.3s ease;
-      animation: popIn 0.5s ease-out;
-      width: 160px;
-      text-align: center;
-    }
-
-    .card-personagem:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 20px rgba(255, 61, 0, 0.4);
-    }
-
-    .card-personagem h3 {
-      color: #ffd700;
-      margin-bottom: 10px;
-      font-size: 1.1em;
-    }
-
-    .card-personagem img {
-      width: 100%;
-      height: 120px;
-      border: 3px solid #fff;
-      border-radius: 8px;
-      object-fit: cover;
-      max-height: 150px;
-      max-height: 150px;
-      object-fit: cover;
-    }
-
-    /* ===== RESPONSIVIDADE ===== */
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 2.2em;
-        margin-bottom: 30px;
-      }
-
-      button {
-        font-size: 18px;
-        padding: 12px 35px;
-      }
-
-      #resultado h2 {
-        font-size: 1.8em;
-      }
-
-      #resultado img {
-        width: 180px;
-      }
-
-      .multiplo-container {
-        gap: 10px;
-        margin: 15px 0;
-      }
-
-      .multiplo-container label {
-        font-size: 1em;
-      }
-
-      .resultado-multiplo {
-        flex-direction: row;
-        gap: 10px;
-      }
-
-      .card-personagem {
-        padding: 12px;
-        width: 140px;
-      }
-
-      .card-personagem h3 {
-        font-size: 0.95em;
-      }
-    }
-
-    @media (max-width: 480px) {
-      body {
-        padding: 10px;
-      }
-
-      h1 {
-        font-size: 1.6em;
-        margin-bottom: 15px;
-      }
-
-      button {
-        font-size: 16px;
-        padding: 12px 30px;
-        width: 90%;
-      }
-
-      #resultado {
-        min-height: 250px;
-      }
-
-      #resultado h2 {
-        font-size: 1.4em;
-        margin-bottom: 15px;
-      }
-
-      #resultado img {
-        width: 150px;
-        border: 3px solid #fff;
-      }
-
-      .multiplo-container {
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
-      }
-
-      .multiplo-container label {
-        font-size: 0.95em;
-      }
-
-      .multiplo-container input {
-        width: 100%;
-        max-width: 100px;
-      }
-
-      .resultado-multiplo {
-        flex-direction: row;
-        gap: 8px;
-      }
-
-      .card-personagem {
-        width: 110px;
-      }
-
-      .card-personagem h3 {
-        font-size: 0.9em;
-        margin-bottom: 5px;
-      }
-
-      .card-personagem img {
-        border: 2px solid #fff;
-      }
-
-      .dica-atalho {
-        font-size: 0.8em;
-      }
-
-      .historico-container {
-        padding: 15px;
-      }
-
-      .btn-acao {
-        font-size: 14px;
-        padding: 8px 15px;
-      }
-    }
+    .mensagem-erro { color: #ff6b6b; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; margin-top: 10px; }
   </style>
 </head>
-
 <body>
+
   <div class="container">
-    <h1> Quem é seu personagem? </h1>
-    <button id="sortear" aria-label="Sortear um personagem da Marvel">Sortear Personagem</button>
-    
-    <!-- CONTROLE SORTEIO MÚLTIPLO -->
-    <div class="multiplo-container">
-      <label for="quantidade">Quantidade:</label>
-      <input type="number" id="quantidade" min="1" max="5" value="1">
+    <h1>Marvel Rivals Sorteio</h1>
+
+    <div class="input-box">
+      <label for="input-nomes">Digite os nomes (separados por vírgula):</label>
+      <textarea id="input-nomes" placeholder="Ex: João, Maria, Pedro, Ana..."></textarea>
+      
+      <p class="dica-enter">💡 Pressione ENTER para sortear</p>
+      
+      <button id="btn-sortear">🎲 Sortear Tudo</button>
     </div>
 
-    <p class="dica-atalho">💡 Dica: Pressione ENTER para sortear rapidamente</p>
     <div id="resultado"></div>
-    <div id="historico" class="historico-container" style="display: none;">
-      <div class="historico-title">📜 Histórico</div>
-      <div id="historico-list" class="historico-list"></div>
-    </div>
-    <div class="acoes-container" id="acoes" style="display: none;">
-      <button class="btn-acao" id="limpar-historico" title="Limpar histórico">🔄 Limpar Histórico</button>
-    </div>
   </div>
 
   <script>
-    // ===== DADOS DOS PERSONAGENS =====
-    const personagens = [
-      { nome: "Homem Aranha", img: "https://i.pinimg.com/736x/91/76/e0/9176e0346a7f79ccf8d4d9747bf03274.jpg" },
+    // ===== LISTA DE PERSONAGENS =====
+    const personagensOriginais = [
+    { nome: "Homem Aranha", img: "https://i.pinimg.com/736x/91/76/e0/9176e0346a7f79ccf8d4d9747bf03274.jpg" },
       { nome: "Penny", img: "https://i.pinimg.com/736x/11/ac/25/11ac253f36b51d7c593225c26f6d13a3.jpg" },
       { nome: "Tocha", img: "https://i.pinimg.com/736x/87/3b/85/873b85c1bde526d50b55d01a6638507c.jpg" },
       { nome: "Blade", img: "https://i.pinimg.com/1200x/d8/66/64/d86664c0db7babaed734c9a2245998ce.jpg" },
@@ -539,216 +205,111 @@
       { nome: "Soldado Invernal", img: "https://i.pinimg.com/736x/6a/36/98/6a3698814307ccf33a3c4a528febd7a7.jpg" },
       { nome: "Wolverine", img: "https://i.pinimg.com/736x/85/f6/a1/85f6a1a4f9844360264c03f7c6b9d02f.jpg" },
       { nome: "Borracha", img: "https://i.pinimg.com/1200x/f6/79/0a/f6790a61a65b0e4f59cf8d7a086d19b9.jpg" },
-      { nome: "Rocket", img: "https://i.pinimg.com/736x/1d/c6/42/1dc642c6a85add8ec19c4503657faaa0.jpg" }
-    ];
+      { nome: "Rocket", img: "https://i.pinimg.com/736x/1d/c6/42/1dc642c6a85add8ec19c4503657faaa0.jpg" },
+      { nome: "Elsa", img: "https://i.pinimg.com/736x/c2/db/dd/c2dbdd8af4a57d79012e97f3672bf568.jpg" }
+    
+]
+
 
     // ===== ELEMENTOS DO DOM =====
-    const botao = document.getElementById("sortear");
-    const resultado = document.getElementById("resultado");
-    const historicoDiv = document.getElementById("historico");
-    const historicoList = document.getElementById("historico-list");
-    const acoes = document.getElementById("acoes");
-    const btnLimparHistorico = document.getElementById("limpar-historico");
-    const inputQuantidade = document.getElementById("quantidade");
-    
-    let ultimoIndex = -1;
-    let esta_sorteando = false;
-    let ultimoPersonagemSorteado = null;
-    let historico = [];
-    let contadores = {};
-    const historicoMaximo = 10;
+    const btnSortear = document.getElementById("btn-sortear");
+    const inputNomes = document.getElementById("input-nomes");
+    const divResultado = document.getElementById("resultado");
 
-    // ===== CARREGAR DADOS DO LOCALSTORAGE =====
-    function carregarDados() {
-      const dados = localStorage.getItem('sorteadorMarvel');
-      if (dados) {
-        const obj = JSON.parse(dados);
-        historico = obj.historico || [];
-        contadores = obj.contadores || {};
+    // ===== FUNÇÃO EMBARALHAR =====
+    function embaralhar(array) {
+      let novoArray = [...array];
+      for (let i = novoArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [novoArray[i], novoArray[j]] = [novoArray[j], novoArray[i]];
       }
+      return novoArray;
     }
 
-    // ===== SALVAR DADOS NO LOCALSTORAGE =====
-    function salvarDados() {
-      localStorage.setItem('sorteadorMarvel', JSON.stringify({ historico, contadores }));
-    }
+    // ===== LÓGICA DO SORTEIO =====
+    function realizarSorteio() {
+      const texto = inputNomes.value;
+      
+      // Limpeza dos nomes
+      let listaNomes = texto.split(',')
+        .map(nome => nome.trim())
+        .filter(nome => nome !== "");
 
-    // ===== ATUALIZAR HISTÓRICO VISUAL =====
-    function atualizarHistoricoVisual() {
-      if (historico.length === 0) {
-        historicoDiv.style.display = 'none';
-        acoes.style.display = 'none';
+      // Validação
+      if (listaNomes.length === 0) {
+        alert("Por favor, digite os nomes dos jogadores.");
+        return;
+      }
+      if (listaNomes.length > personagensOriginais.length) {
+        alert(`Muitas pessoas! Temos apenas ${personagensOriginais.length} personagens disponíveis.`);
         return;
       }
 
-      historicoDiv.style.display = 'block';
-      acoes.style.display = 'flex';
-      historicoList.innerHTML = '';
+      // Preparação Visual
+      btnSortear.disabled = true;
+      divResultado.innerHTML = '<h2 style="color: #ffd700; width: 100%;">🎲 Misturando nomes e heróis...</h2>';
 
-      // Ordenar por contador (maior para menor)
-      const historicoOrdenado = [...historico].sort((a, b) => {
-        return (contadores[b] || 1) - (contadores[a] || 1);
-      });
-
-      historicoOrdenado.forEach(nome => {
-        const div = document.createElement('div');
-        div.className = 'historico-item';
-        div.innerHTML = `${nome}<small>(${contadores[nome] || 1}x)</small>`;
-        div.onclick = () => mostrarPersonagem(nome);
-        historicoList.appendChild(div);
-      });
-    }
-
-    // ===== MOSTRAR PERSONAGEM ESPECÍFICO =====
-    function mostrarPersonagem(nome) {
-      const p = personagens.find(pers => pers.nome === nome);
-      if (p) {
-        ultimoPersonagemSorteado = p;
-        exibirResultado(p);
-      }
-    }
-
-    // ===== EXIBIR RESULTADO =====
-    function exibirResultado(p) {
-      resultado.innerHTML = `
-        <h2>${p.nome}</h2>
-        <img src="${p.img}" alt="${p.nome}" class="mostrar">
-      `;
-    }
-
-
-
-    // ===== LIMPAR HISTÓRICO =====
-    function limparHistorico() {
-      if (confirm('Deseja realmente limpar o histórico?')) {
-        historico = [];
-        contadores = {};
-        salvarDados();
-        atualizarHistoricoVisual();
-      }
-    }
-
-    // ===== FUNÇÃO PRINCIPAL =====
-    /**
-     * Sorteia um ou mais personagens aleatórios
-     * Inclui animação de carregamento e tratamento de erros para imagens
-     */
-    function sortearPersonagem() {
-      // Evita cliques múltiplos
-      if (esta_sorteando) return;
-
-      esta_sorteando = true;
-      botao.disabled = true;
-      const quantidade = Math.min(Math.max(parseInt(inputQuantidade.value) || 1, 1), 5);
-      resultado.innerHTML = '<div class="carregando">🎲 Sorteando...</div>';
-
-      // Simula delay para ter melhor feedback visual
       setTimeout(() => {
-        const personagensEscolhidos = [];
-        const usados = new Set();
-
-        // Sorteia quantidade de personagens diferentes
-        while (personagensEscolhidos.length < quantidade && personagensEscolhidos.length < personagens.length) {
-          const indexAleatorio = Math.floor(Math.random() * personagens.length);
-          const nome = personagens[indexAleatorio].nome;
+        try {
+          // EMBARALHAMENTO DUPLO (Nomes e Personagens)
+          const nomesEmbaralhados = embaralhar(listaNomes);
+          const personagensEmbaralhados = embaralhar(personagensOriginais);
           
-          if (!usados.has(nome)) {
-            personagensEscolhidos.push(personagens[indexAleatorio]);
-            usados.add(nome);
-          }
-        }
+          let htmlFinal = "";
 
-        // Atualizar histórico
-        personagensEscolhidos.forEach(personagem => {
-          if (!historico.includes(personagem.nome)) {
-            historico.unshift(personagem.nome);
-            if (historico.length > historicoMaximo) {
-              historico.pop();
-            }
-          }
-          contadores[personagem.nome] = (contadores[personagem.nome] || 0) + 1;
-        });
-        
-        salvarDados();
-        atualizarHistoricoVisual();
+          nomesEmbaralhados.forEach((nomeJogador, index) => {
+            const p = personagensEmbaralhados[index];
+            const delayAnimacao = index * 0.1;
 
-        // Exibir resultado com efeito
-        if (quantidade === 1) {
-          exibirResultado(personagensEscolhidos[0]);
-        } else {
-          exibirResultadoMultiplo(personagensEscolhidos);
+            htmlFinal += `
+              <div class="card" style="animation-delay: ${delayAnimacao}s">
+                <h3 title="${nomeJogador}">${nomeJogador}</h3>
+                <img src="${p.img}" alt="${p.nome}">
+                <p>${p.nome}</p>
+              </div>
+            `;
+          });
+
+          divResultado.innerHTML = htmlFinal;
+          lancarConfete();
+
+        } catch (erro) {
+          console.error(erro);
+          divResultado.innerHTML = `<div class="mensagem-erro">Erro no sorteio. Tente novamente.</div>`;
+        } finally {
+          btnSortear.disabled = false;
         }
-        
-        // Anima confete
-        lancarConfete();
-        
-        esta_sorteando = false;
-        botao.disabled = false;
       }, 800);
     }
 
-    // ===== EXIBIR RESULTADO MÚLTIPLO =====
-    function exibirResultadoMultiplo(personagens) {
-      let html = '<div class="resultado-multiplo">';
-      personagens.forEach(p => {
-        html += `
-          <div class="card-personagem">
-            <h3>${p.nome}</h3>
-            <img src="${p.img}" alt="${p.nome}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px;">
-          </div>
-        `;
-      });
-      html += '</div>';
-      resultado.innerHTML = html;
-    }
-
-    // ===== FUNÇÃO DE CONFETE =====
-    /**
-     * Lança confete animado quando um personagem é sorteado
-     */
     function lancarConfete() {
-      // Confete do lado esquerdo
-      confetti({
-        particleCount: 100,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.5 }
-      });
-
-      // Confete do lado direito
-      confetti({
-        particleCount: 100,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.5 }
-      });
-
-      // Confete do centro caindo para baixo
-      confetti({
-        particleCount: 80,
-        angle: 90,
-        spread: 60,
-        origin: { x: 0.5, y: 0 },
-        colors: ['#ff3d00', '#ffd700', '#ff6e40', '#4CAF50', '#2196F3']
-      });
+      const count = 200;
+      const defaults = { origin: { y: 0.7 } };
+      function fire(particleRatio, opts) {
+        confetti(Object.assign({}, defaults, opts, {
+          particleCount: Math.floor(count * particleRatio)
+        }));
+      }
+      fire(0.25, { spread: 26, startVelocity: 55 });
+      fire(0.2, { spread: 60 });
+      fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+      fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+      fire(0.1, { spread: 120, startVelocity: 45 });
     }
 
-    // ===== EVENT LISTENERS =====
-    botao.addEventListener("click", sortearPersonagem);
-    btnLimparHistorico.addEventListener("click", limparHistorico);
-
-    // Atalho de teclado - ENTER
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' && !botao.disabled) {
-        sortearPersonagem();
+    // ===== EVENT LISTENERS (CORREÇÃO DO ENTER) =====
+    
+    // 1. Ouvinte Global para o ENTER
+    document.addEventListener("keydown", (e) => {
+      // Verifica se a tecla é ENTER e se o botão não está desabilitado
+      if (e.key === "Enter" && !btnSortear.disabled) {
+        e.preventDefault(); // Impede pular linha no textarea
+        realizarSorteio();
       }
     });
 
-    // Carregar dados ao abrir
-    carregarDados();
-    atualizarHistoricoVisual();
+    btnSortear.addEventListener("click", realizarSorteio);
+
   </script>
 </body>
 </html>
-
-  
